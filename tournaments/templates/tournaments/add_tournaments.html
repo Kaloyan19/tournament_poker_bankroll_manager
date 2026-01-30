@@ -1,0 +1,95 @@
+{% extends 'tournaments/base.html' %}
+
+{% block title %}Add Tournament{% endblock %}
+{% block page_title %}Add Tournament{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Enter Tournament Details</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        Please correct the errors below.
+                    </div>
+                    {% endif %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                <i class="bi bi-calendar me-1"></i>Date
+                            </label>
+                            {{ form.date }}
+                            {% if form.date.errors %}
+                            <div class="text-danger small">{{ form.date.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                <i class="bi bi-cash-coin me-1"></i>Buy-in Amount
+                            </label>
+                            {{ form.buy_in }}
+                            {% if form.buy_in.errors %}
+                            <div class="text-danger small">{{ form.buy_in.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">Minimum: $0.10</div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                <i class="bi bi-wallet me-1"></i>Amount Cashed
+                            </label>
+                            {{ form.cashed_for }}
+                            {% if form.cashed_for.errors %}
+                            <div class="text-danger small">{{ form.cashed_for.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">Enter 0 if you did not cash</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                <i class="bi bi-trophy me-1"></i>Finish Position
+                            </label>
+                            {{ form.place_finished }}
+                            {% if form.place_finished.errors %}
+                            <div class="text-danger small">{{ form.place_finished.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">1st, 2nd, 3rd, etc.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{% url 'tournaments:dashboard' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-2"></i>Save Tournament
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const dateField = document.getElementById('id_date');
+        if (dateField && !dateField.value) {
+            const today = new Date().toISOString().split('T')[0];
+            dateField.value = today;
+        }
+    });
+</script>
+{% endblock %}
