@@ -117,7 +117,7 @@ def add_tournament(request):
             request.user.save()
 
             messages.success(request, f'Tournament added! Net: {tournament.display_net}')
-            return redirect('dashboard')
+            return redirect('tournaments:dashboard')
 
     else:
         form = TournamentInputForm()
@@ -146,12 +146,12 @@ def add_adjustment(request):
 
             request.user.save()
 
-            return redirect('dashboard')
+            return redirect('tournaments:dashboard')
 
-        else:
-            form = BankrollAdjustmentForm()
+    else:
+        form = BankrollAdjustmentForm()
 
-        return render(request, 'tournaments/add_adjustment.html', {'form': form})
+    return render(request, 'tournaments/add_adjustment.html', {'form': form})
 
 
 @login_required
@@ -202,9 +202,9 @@ def edit_tournament(request, pk):
             request.user.save()
 
             messages.success(request, 'Tournament updated successfully!')
-            return redirect('tournament_list')
-        else:
-            form = TournamentInputForm(instance=tournament)
+            return redirect('tournaments:tournament_list')
+    else:
+        form = TournamentInputForm(instance=tournament)
 
         return render(request, 'tournaments/edit_tournament.html', {'form': form, 'tournament': tournament})
 
@@ -219,6 +219,6 @@ def delete_tournament(request, pk):
         tournament.delete()
 
         messages.success(request, 'Tournament deleted successfully!')
-        return redirect('tournament_list')
+        return redirect('tournaments:tournament_list')
 
     return render(request, 'tournaments/delete_tournament.html', {'tournament': tournament})

@@ -1,10 +1,62 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'tournaments/base.html' %}
+
+{% block title %}Delete Tournament{% endblock %}
+{% block page_title %}Delete Tournament{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Confirm Deletion
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-octagon me-2"></i>
+                    <strong>Warning:</strong> This action cannot be undone.
+                </div>
+
+                <h6>Tournament Details:</h6>
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong>Date:</strong> {{ tournament.date }}</p>
+                                <p class="mb-1"><strong>Buy-in:</strong> ${{ tournament.buy_in }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong>Cashed:</strong> ${{ tournament.cashed_for }}</p>
+                                <p class="mb-1"><strong>Net:</strong>
+                                    <span class="{% if tournament.net_amount >= 0 %}profit-positive{% else %}profit-negative{% endif %}">
+                                        {{ tournament.display_net }}
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                        <p class="mb-0 mt-2">
+                            <strong>Bankroll Impact:</strong>
+                            <span class="{% if tournament.net_amount >= 0 %}profit-negative{% else %}profit-positive{% endif %}">
+                                Your bankroll will change by {{ tournament.display_net }}
+                            </span>
+                        </p>
+                    </div>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'tournaments:tournament_list' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle me-2"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash me-2"></i>Yes, Delete Tournament
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
