@@ -1,6 +1,82 @@
 from django import forms
+import re
 from .models import TournamentInput, BankrollAdjustment
 from decimal import Decimal
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
+
+
+class PokerUserCreationForm(UserCreationForm):
+    class Meta:
+        model = get_user_model()
+        fields = ("username", "password1", "password2")
+
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+
+        if len(username) < 3:
+            raise ValidationError("Username must be at least 3 characters.")
+
+        if len(username) > 20:
+            raise ValidationError("Username cannot exceed 20 characters.")
+
+        if not re.match(r'^[\w.@+-]+$', username):
+            raise ValidationError(
+                "Username can only contain letters, numbers, and @/./+/-/_ characters."
+            )
+
+        User = get_user_model()
+        if User.objects.filter(username__iexact=username).exists():
+            raise ValidationError("A user with that username already exists.")
+
+        blocked_words = ['admin', 'administrator', 'moderator', 'staff', 'support']
+        if any(word in username.lower() for word in blocked_words):
+            raise ValidationError("This username is not allowed.")
+
+        return username
+
+    def clean_password2(self):
+        password1 = self.cleaned_data.get("password1")
+        password2 = self.cleaned_data.get("password2")
+
+        if password1 and password2 and password1 != password2:
+            raise ValidationError("Passwords don't match.")
+
+        if len(password1) < 8:
+            raise ValidationError("Password must be at least 8 characters.")
+
+        weak_passwords = [
+            'password', '12345678', 'qwerty', 'poker123', 'letmein',
+            'password123', 'admin123', 'test123', 'hello123'
+        ]
+
+        if password1.lower() in weak_passwords:
+            raise ValidationError("This password is too common. Please choose a stronger one.")
+
+        username = self.cleaned_data.get('username', '')
+        if username and username.lower() in password1.lower():
+            raise ValidationError("Password should not contain your username.")
+
+        if not re.search(r'[A-Z]', password1):
+            raise ValidationError("Password must contain at least one uppercase letter.")
+
+        if not re.search(r'[a-z]', password1):
+            raise ValidationError("Password must contain at least one lowercase letter.")
+
+        if not re.search(r'[0-9]', password1):
+            raise ValidationError("Password must contain at least one number.")
+
+        return password2
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.bankroll = 100.00
+
+        if commit:
+            user.save()
+
+        return user
 
 class TournamentInputForm(forms.ModelForm):
     class Meta:

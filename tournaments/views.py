@@ -1,3 +1,4 @@
+from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -5,7 +6,8 @@ from django.db.models import Sum
 from datetime import datetime, timedelta
 from decimal import Decimal
 from .models import TournamentInput, BankrollAdjustment
-from .forms import TournamentInputForm, BankrollAdjustmentForm
+from .forms import TournamentInputForm, BankrollAdjustmentForm, PokerUserCreationForm
+from django.contrib.auth import login
 
 
 @login_required
@@ -222,3 +224,17 @@ def delete_tournament(request, pk):
         return redirect('tournaments:tournament_list')
 
     return render(request, 'tournaments/delete_tournament.html', {'tournament': tournament})
+
+
+def signup(request):
+    if request.method == 'POST':
+        form = PokerUserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, f'Welcome {user.username}!')
+            return redirect('tournaments:dashboard')
+    else:
+        form = PokerUserCreationForm()
+
+    return render(request, 'registration/signup.html', {'form': form})
