@@ -17,5 +17,7 @@ urlpatterns = [
     ), name='logout'),
 
     path('accounts/signup/', tournament_views.signup, name='signup'),
+
+    path('api/', include('tournaments.api_urls')),
 ]
 

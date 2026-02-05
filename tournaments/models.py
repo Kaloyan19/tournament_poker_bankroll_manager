@@ -95,5 +95,17 @@ class BankrollAdjustment(models.Model):
     description = models.CharField(max_length=200, blank=True)
     date = models.DateTimeField(auto_now_add=True)
 
+    def apply_to_user(self):
+        if self.transaction_type == 'deposit':
+            self.user.bankroll += self.amount
+        elif self.transaction_type == 'withdrawal':
+            self.user.bankroll -= self.amount
+        elif self.transaction_type == 'correction':
+            self.user.bankroll = self.amount
+
+        self.user.save()
+
     def __str__(self) -> str:
         return f"{self.user.username}: {self.transaction_type} ${self.amount}"
+
+
