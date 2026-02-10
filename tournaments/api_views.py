@@ -4,16 +4,18 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.contrib.auth import get_user_model
 from .models import TournamentInput, BankrollAdjustment
-from .serializers import TournamentSerializer, BankrollAdjustmentSerializer, UserSerializer
+from .serializers import TournamentSerializer, BankrollAdjustmentSerializer, UserSerializer, CustomTokenObtainPairSerializer
 from datetime import datetime, timedelta
 from .services import get_period_filter, calculate_tournament_stats, calculate_adjustment_totals
+from rest_framework_simplejwt.views import TokenObtainPairView
+from .permissions import IsOwner, IsSameUser
 
 User = get_user_model()
 
 
 class TournamentViewSet(viewsets.ModelViewSet):
     serializer_class = TournamentSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsOwner]
 
     def get_queryset(self):
         return TournamentInput.objects.filter(player=self.request.user)
@@ -36,7 +38,7 @@ class TournamentViewSet(viewsets.ModelViewSet):
 
 class BankrollAdjustmentViewSet(viewsets.ModelViewSet):
     serializer_class = BankrollAdjustmentSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsOwner]
 
     def get_queryset(self):
         return BankrollAdjustment.objects.filter(user=self.request.user)
@@ -56,7 +58,7 @@ class BankrollAdjustmentViewSet(viewsets.ModelViewSet):
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsSameUser]
 
     def get_queryset(self):
         return User.objects.filter(id=self.request.user.id)
@@ -147,4 +149,5 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
             'message': 'Bankroll history endpoint - implement detailed calculation as needed'
         })
 
-
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer

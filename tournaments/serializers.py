@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from decimal import Decimal
 from .models import TournamentInput, BankrollAdjustment, PokerUser
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.db.models import Q
 
 class TournamentSerializer(serializers.ModelSerializer):
     net_amount = serializers.ReadOnlyField()
@@ -91,3 +93,14 @@ class UserSerializer(serializers.ModelSerializer):
         if value < 0:
             raise serializers.ValidationError("Bankroll cannot be negative")
         return value
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        token['username'] = user.username
+        token['bankroll'] = str(user.bankroll)
+
+        return token
+

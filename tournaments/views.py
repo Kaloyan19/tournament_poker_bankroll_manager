@@ -137,7 +137,7 @@ def edit_tournament(request, pk):
     else:
         form = TournamentInputForm(instance=tournament)
 
-        return render(request, 'tournaments/edit_tournament.html', {'form': form, 'tournament': tournament})
+    return render(request, 'tournaments/edit_tournament.html', {'form': form, 'tournament': tournament})
 
 @login_required
 def delete_tournament(request, pk):
